@@ -1,10 +1,9 @@
-import 'dart:typed_data';
+import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_saver/image_saver.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class ImageShow extends StatefulWidget {
@@ -20,17 +19,11 @@ class ImageShow extends StatefulWidget {
 class _ImageShowState extends State<ImageShow> {
   final String baseUrl = 'https://www.ipicbook.com/fangdoc/';
 
-  void _saveImage(String url) async {
-    var response = await Dio()
-        .get(url, options: Options(responseType: ResponseType.bytes));
-    final result =
-        await ImageGallerySaver.saveImage(Uint8List.fromList(response.data));
-    print('result:$result');
-    if (result == null) {
-      Fluttertoast.showToast(msg: '保存失败');
-    } else {
-      Fluttertoast.showToast(msg: '保存成功');
-    }
+  void _saveImage(BuildContext context, String url) async {
+    var response = await http.get(url);
+    File result = await ImageSaver.toFile(fileData: response.bodyBytes);
+    final snackBar = SnackBar(content: Text(result == null ? '保存失败!' : '保存成功'));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -76,8 +69,8 @@ class _ImageShowState extends State<ImageShow> {
                   bottom: 24,
                   child: FloatingActionButton(
                     child: Icon(Icons.file_download),
-                    onPressed: () =>
-                        _saveImage(baseUrl + widget.imgUrls[index - 1]),
+                    onPressed: () => _saveImage(
+                        context, baseUrl + widget.imgUrls[index - 1]),
                   ),
                 ),
                 Positioned(

@@ -6,7 +6,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:parse_doc/AnimatedWaveProgress.dart';
 
 import 'show_img.dart';
@@ -54,8 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showImages(BuildContext context) {
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => ImageShow(imgUrls: imgUrls, text: text)));
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => ImageShow(imgUrls: imgUrls, text: text),
+      ),
+    );
   }
 
   @override
@@ -125,10 +127,11 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 uploadValue = 0;
               });
-              Fluttertoast.showToast(
-                msg: data['msg'],
-                toastLength: Toast.LENGTH_LONG,
+              final snackBar = SnackBar(
+                content: Text(data['msg']),
+                duration: Duration(seconds: 3),
               );
+              Scaffold.of(context).showSnackBar(snackBar);
             }
           },
         ),
